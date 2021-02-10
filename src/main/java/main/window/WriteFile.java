@@ -8,38 +8,54 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.*;
 
+
 public class WriteFile {
 
-    public void write(String text) {
-        final String file="C:\\Users\\Jan\\Desktop\\ThingsToDo.txt";
 
-        try(
-                var writer=new FileWriter(file, true);
-                var bwxiter=new BufferedWriter(writer);
-                ) {
+    public void write(String text, int pro) {
 
-            bwxiter.write(text);
-            bwxiter.newLine();
+        //WRITE TO FILE .TXT
 
-        } catch (IOException e) {
-            System.err.println("Something went bad");
-            e.printStackTrace();
-        }
+//        final String file="C:\\Users\\Jan\\Desktop\\ThingsToDo.txt";
+//
+//        try(
+//                var writer=new FileWriter(file, true);
+//                var bwxiter=new BufferedWriter(writer);
+//                ) {
+//
+//            bwxiter.write(text);
+//            bwxiter.newLine();
+//
+//        } catch (IOException e) {
+//            System.err.println("Something went bad");
+//            e.printStackTrace();
+//        }
+
+        //WRITE TO DATABASE
+
         try (
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/todoapp?serverTimezone=UTC", "root", "jasiek7");
                 Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("SELECT number, priority, name FROM main_table LIMIT 3");) {
+        ) {
+            String insert = String.format("INSERT INTO main_table(priority, name) VALUES (%d,'%s')", pro, text);
+            int result = statement.executeUpdate(insert);
 
-            while (resultSet.next()) {
-                int firstName = resultSet.getInt("number");
-                int lastName = resultSet.getInt("priority");
-                String hireDate = resultSet.getString("name");
-                System.out.printf("%d %s - data zatrudnienia: %s\n", firstName, lastName, hireDate);
 
-            }
+//            int num = 13;
+//            StringBuilder builder=new StringBuilder();
+//            builder.append("\"INSERT INTO main_table(number, priority, name) VALUES (");
+//            builder.append(num+", ");
+//            builder.append(pro+", ");
+//            builder.append("\'"+text+"\'"+")\"");
+//            System.out.println(builder.toString());
+//            String pomocny=builder.toString();
+//            //int result = statement.executeUpdate(builder.toString());
+//            int result = statement.executeUpdate(pomocny);
+//            num++;
+//            System.out.println("Zapisano" + result);
 
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            throw new RuntimeException(throwables);
         }
     }
 }
